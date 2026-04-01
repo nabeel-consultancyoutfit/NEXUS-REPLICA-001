@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+dist/
+
+# Environment
+.env
+
+# IDE
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logs
+*.log
+npm-debug.log*
+
+# Coverage
+coverage/
