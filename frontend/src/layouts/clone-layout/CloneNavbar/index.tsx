@@ -9,7 +9,7 @@
  *
  * Auth state comes from AuthContext — no prop drilling needed.
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import {
@@ -23,35 +23,59 @@ import {
   Divider,
   ListItemIcon,
   ListItemText,
+  ButtonBase,
 } from '@mui/material';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import LogoutIcon        from '@mui/icons-material/Logout';
+import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
 import { CLONE_TOKENS }  from '@/theme/clone-theme';
 import { useAuthContext } from '@/contexts/AuthContext';
+import {
+  HOME_LANGUAGE_COPY,
+  LANGUAGE_CHANGE_EVENT,
+  LANGUAGE_OPTIONS,
+  LANGUAGE_STORAGE_KEY,
+  getStoredHomeLanguage,
+} from '@/modules/nexusai-clone/i18n/homeLanguage';
 
 // ─── Nav items ────────────────────────────────────────────────────────────────
 
 interface NavItem { label: string; href: string }
-
-const NAV_ITEMS: NavItem[] = [
-  { label: 'Chat Hub',     href: '/ai/chat'        },
-  { label: 'Marketplace',  href: '/ai/marketplace' },
-  { label: 'Agents',       href: '/ai/agents'      },
-  { label: 'Discover New', href: '/ai/discover'    },
-];
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function CloneNavbar() {
   const router                     = useRouter();
   const { user, isAuthenticated, logout } = useAuthContext();
+  const isHomePage = router.pathname === '/ai';
 
   // Dropdown anchor for authenticated avatar menu
   const [anchorEl, setAnchorEl]    = useState<HTMLElement | null>(null);
   const menuOpen                   = Boolean(anchorEl);
+  const [languageAnchorEl, setLanguageAnchorEl] = useState<HTMLElement | null>(null);
+  const languageMenuOpen = Boolean(languageAnchorEl);
+  const [selectedLanguageCode, setSelectedLanguageCode] = useState<string>('EN');
 
   const openMenu  = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
   const closeMenu = () => setAnchorEl(null);
+  const openLanguageMenu = (e: React.MouseEvent<HTMLElement>) => setLanguageAnchorEl(e.currentTarget);
+  const closeLanguageMenu = () => setLanguageAnchorEl(null);
+
+  useEffect(() => {
+    const syncLanguage = () => setSelectedLanguageCode(getStoredHomeLanguage());
+    syncLanguage();
+    window.addEventListener(LANGUAGE_CHANGE_EVENT, syncLanguage);
+    return () => window.removeEventListener(LANGUAGE_CHANGE_EVENT, syncLanguage);
+  }, []);
+
+  const handleLanguageSelect = (languageCode: string) => {
+    setSelectedLanguageCode(languageCode);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(LANGUAGE_STORAGE_KEY, languageCode);
+      window.dispatchEvent(new Event(LANGUAGE_CHANGE_EVENT));
+    }
+    closeLanguageMenu();
+  };
 
   const handleLogout = () => {
     closeMenu();
@@ -68,6 +92,14 @@ export default function CloneNavbar() {
 
   const displayName  = user?.name  || user?.email || 'User';
   const displayEmail = user?.email || '';
+  const selectedLanguage = LANGUAGE_OPTIONS.find((option) => option.code === selectedLanguageCode) ?? LANGUAGE_OPTIONS[0];
+  const copy = HOME_LANGUAGE_COPY[selectedLanguage.code];
+  const navItems: NavItem[] = [
+    { label: copy.navbar.chatHub, href: '/ai/chat' },
+    { label: copy.navbar.marketplace, href: '/ai/marketplace' },
+    { label: copy.navbar.agents, href: '/ai/agents' },
+    { label: copy.navbar.discoverNew, href: '/ai/discover' },
+  ];
 
   return (
     <Box
@@ -128,7 +160,7 @@ export default function CloneNavbar() {
 
       {/* ── CENTER: Nav links ───────────────────────────────── */}
       <Stack direction="row" spacing={0.5} alignItems="center">
-        {NAV_ITEMS.map(({ label, href }) => {
+        {navItems.map(({ label, href }) => {
           const active =
             router.pathname === href || router.pathname.startsWith(href + '/');
           return (
@@ -178,6 +210,99 @@ export default function CloneNavbar() {
 
       {/* ── RIGHT: Guest buttons OR authenticated avatar ────── */}
       <Stack direction="row" spacing={1.5} alignItems="center">
+        {isHomePage && (
+          <>
+            <ButtonBase
+              onClick={openLanguageMenu}
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 0.65,
+                px: 1.1,
+                py: 0.6,
+                borderRadius: '999px',
+                border: `1px solid ${CLONE_TOKENS.border}`,
+                backgroundColor: CLONE_TOKENS.white,
+                color: CLONE_TOKENS.text2,
+                fontSize: '0.82rem',
+                fontWeight: 500,
+                '&:hover': { backgroundColor: CLONE_TOKENS.bg },
+              }}
+            >
+              <LanguageOutlinedIcon sx={{ fontSize: '0.95rem' }} />
+              <Typography sx={{ fontSize: '0.78rem', fontWeight: 600 }}>
+                {selectedLanguage.code}
+              </Typography>
+              <Typography sx={{ fontSize: '0.6rem', color: CLONE_TOKENS.text3 }}>▾</Typography>
+            </ButtonBase>
+
+            <Menu
+              anchorEl={languageAnchorEl}
+              open={languageMenuOpen}
+              onClose={closeLanguageMenu}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              PaperProps={{
+                elevation: 0,
+                sx: {
+                  mt: 0.75,
+                  width: 132,
+                  maxHeight: 380,
+                  borderRadius: '16px',
+                  border: `1px solid ${CLONE_TOKENS.border}`,
+                  boxShadow: '0 12px 36px rgba(28,26,22,0.12)',
+                  overflow: 'auto',
+                },
+              }}
+            >
+              <Box sx={{ px: 1.2, pt: 1, pb: 0.6 }}>
+                <Typography
+                  sx={{
+                    fontSize: '0.58rem',
+                    fontWeight: 700,
+                    letterSpacing: '0.08em',
+                    color: CLONE_TOKENS.text3,
+                  }}
+                >
+                  {copy.navbar.appLanguage}
+                </Typography>
+              </Box>
+              {LANGUAGE_OPTIONS.map((option) => {
+                const isSelected = option.code === selectedLanguageCode;
+
+                return (
+                  <MenuItem
+                    key={option.code}
+                    onClick={() => handleLanguageSelect(option.code)}
+                    sx={{
+                      px: 1.2,
+                      py: 0.8,
+                      minHeight: 0,
+                      backgroundColor: isSelected ? CLONE_TOKENS.accentLight : 'transparent',
+                      '&:hover': { backgroundColor: CLONE_TOKENS.bg },
+                    }}
+                  >
+                    <Stack direction="row" spacing={0.75} alignItems="center">
+                      <Typography sx={{ fontSize: '0.62rem', color: CLONE_TOKENS.text3, minWidth: 22 }}>
+                        {option.code}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          fontSize: '0.78rem',
+                          fontWeight: isSelected ? 700 : 500,
+                          color: CLONE_TOKENS.text2,
+                        }}
+                      >
+                        {option.nativeLabel}
+                      </Typography>
+                    </Stack>
+                  </MenuItem>
+                );
+              })}
+            </Menu>
+          </>
+        )}
+
         {isAuthenticated ? (
           // ── Authenticated: avatar button ─────────────────────
           <>
@@ -325,7 +450,7 @@ export default function CloneNavbar() {
                 },
               }}
             >
-              Sign in
+              {copy.navbar.signIn}
             </Button>
             <Button
               component={NextLink}
@@ -345,7 +470,7 @@ export default function CloneNavbar() {
                 },
               }}
             >
-              Try It →
+              {copy.navbar.tryIt}
             </Button>
           </>
         )}

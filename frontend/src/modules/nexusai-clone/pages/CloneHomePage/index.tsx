@@ -10,11 +10,16 @@
  *   Value props | AI Labs | Model Comparison | Trending Research
  *   Budget Finder | Use Case Grid | Newsletter CTA | Footer
  */
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { Box, Typography, Stack, Button, Grid } from '@mui/material';
 import { CLONE_TOKENS } from '@/theme/clone-theme';
+import {
+  getStoredHomeLanguage,
+  HOME_LANGUAGE_COPY,
+  LANGUAGE_CHANGE_EVENT,
+} from '../../i18n/homeLanguage';
 import CloneHeroSearchCard from '../../components/CloneHeroSearchCard';
 import CloneModelCard from '../../components/CloneModelCard';
 import { CLONE_MOCK_MODELS } from '../../mock';
@@ -29,23 +34,36 @@ import CloneNewsletterCta from '../../components/home/CloneNewsletterCta';
 import CloneFooter from '../../components/home/CloneFooter';
 
 const TASK_CATEGORIES = [
-  { icon: '🖼️', label: 'Create Image'      },
-  { icon: '🎵', label: 'Generate Audio'     },
-  { icon: '🎬', label: 'Create Video'       },
-  { icon: '📐', label: 'Create Slides'      },
-  { icon: '📊', label: 'Create Infographs'  },
-  { icon: '❓', label: 'Create Quiz'        },
-  { icon: '📝', label: 'Create Document'    },
-  { icon: '🗺️', label: 'Create Mind Map'   },
-  { icon: '💻', label: 'Code'               },
-  { icon: '✍️', label: 'Write Content'      },
-  { icon: '🔍', label: 'Analyze Data'       },
-  { icon: '🔄', label: 'Automate Work'      },
+  { icon: '🖼️', promptLabel: 'Create Image' },
+  { icon: '🎵', promptLabel: 'Generate Audio' },
+  { icon: '🎬', promptLabel: 'Create Video' },
+  { icon: '📐', promptLabel: 'Create Slides' },
+  { icon: '📊', promptLabel: 'Create Infographs' },
+  { icon: '❓', promptLabel: 'Create Quiz' },
+  { icon: '📝', promptLabel: 'Create Document' },
+  { icon: '🗺️', promptLabel: 'Create Mind Map' },
+  { icon: '💻', promptLabel: 'Code' },
+  { icon: '✍️', promptLabel: 'Write Content' },
+  { icon: '🔍', promptLabel: 'Analyze Data' },
+  { icon: '🔄', promptLabel: 'Automate Work' },
 ];
 
 export default function CloneHomePage() {
   const router  = useRouter();
   const featured = CLONE_MOCK_MODELS.filter((m) => m.badge === 'hot').slice(0, 5);
+  const [languageCode, setLanguageCode] = useState(getStoredHomeLanguage());
+
+  useEffect(() => {
+    const syncLanguage = () => setLanguageCode(getStoredHomeLanguage());
+    window.addEventListener(LANGUAGE_CHANGE_EVENT, syncLanguage);
+    return () => window.removeEventListener(LANGUAGE_CHANGE_EVENT, syncLanguage);
+  }, []);
+
+  const copy = HOME_LANGUAGE_COPY[languageCode];
+  const taskCategories = useMemo(
+    () => TASK_CATEGORIES.map((item, index) => ({ ...item, label: copy.tasks[index] ?? item.promptLabel })),
+    [copy.tasks],
+  );
 
   const handleSearchComplete = (prompt: string) => {
     router.push({ pathname: '/ai/chat', query: { prompt } });
@@ -89,7 +107,7 @@ export default function CloneHomePage() {
             }}
           />
           <Typography sx={{ fontSize: '0.8rem', color: CLONE_TOKENS.text2, fontWeight: 500 }}>
-            347 models live · Updated daily
+            {copy.home.liveModels}
           </Typography>
         </Box>
 
@@ -106,9 +124,9 @@ export default function CloneHomePage() {
             mb:            '0.75rem',
           }}
         >
-          Find your perfect{' '}
-          <Box component="span" sx={{ color: CLONE_TOKENS.accent }}>AI model</Box>
-          {' '}with guided discovery
+          {copy.home.headingBefore}{' '}
+          <Box component="span" sx={{ color: CLONE_TOKENS.accent }}>{copy.home.headingAccent}</Box>
+          {' '}{copy.home.headingAfter}
         </Typography>
 
         <Typography
@@ -121,8 +139,7 @@ export default function CloneHomePage() {
             mx:         'auto',
           }}
         >
-          You don&apos;t need to know anything about AI to get started.
-          Just click the box below — we&apos;ll do the rest together. ✨
+          {copy.home.subtitle}
         </Typography>
 
         {/* Hero guided-discovery search card */}
@@ -135,7 +152,7 @@ export default function CloneHomePage() {
             color:     CLONE_TOKENS.text3,
           }}
         >
-          Click the box above to start the guided flow · or{' '}
+          {copy.home.helperPrefix}{' '}
           <Box
             component={NextLink}
             href="/ai/chat"
@@ -146,7 +163,7 @@ export default function CloneHomePage() {
               '&:hover':      { textDecoration: 'underline' },
             }}
           >
-            jump straight to chat
+            {copy.home.helperLink}
           </Box>
         </Typography>
       </Box>
@@ -157,11 +174,11 @@ export default function CloneHomePage() {
       {/* ── Task Category Grid ───────────────────────────── */}
       <Box sx={{ maxWidth: 860, mx: 'auto', px: '2rem', mb: '4rem' }}>
         <Grid container spacing={1.5}>
-          {TASK_CATEGORIES.map(({ icon, label }) => (
+          {taskCategories.map(({ icon, label, promptLabel }) => (
             <Grid key={label} item xs={6} sm={4} md={3} lg={2}>
               <Box
                 onClick={() =>
-                  router.push({ pathname: '/ai/chat', query: { prompt: `I want to: ${label}` } })
+                  router.push({ pathname: '/ai/chat', query: { prompt: `I want to: ${promptLabel}` } })
                 }
                 sx={{
                   display:         'flex',
@@ -213,7 +230,7 @@ export default function CloneHomePage() {
               letterSpacing: '-0.02em',
             }}
           >
-            🔥 Trending Models
+            {copy.home.trendingModels}
           </Typography>
           <Box component={NextLink} href="/ai/marketplace" sx={{ textDecoration: 'none' }}>
             <Button
@@ -226,7 +243,7 @@ export default function CloneHomePage() {
                 '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' },
               }}
             >
-              View all 347 models →
+              {copy.home.viewAllModels}
             </Button>
           </Box>
         </Stack>
