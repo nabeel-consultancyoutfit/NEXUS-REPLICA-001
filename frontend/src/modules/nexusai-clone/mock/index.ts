@@ -1,5 +1,5 @@
 /**
- * Mock data for nexusai-clone module.
+ * Mock data for nexusai module.
  * Based on the real models visible on nexusai-db.netlify.app/marketplace.
  */
 import type { CloneModel, CloneAgent, CloneResearchItem } from '../types';
@@ -167,7 +167,9 @@ export const CLONE_MOCK_MODELS: CloneModel[] = [
   },
 ];
 
-export const CLONE_PROVIDERS = [...new Set(CLONE_MOCK_MODELS.map((m) => m.provider))];
+export const CLONE_PROVIDERS: string[] = CLONE_MOCK_MODELS
+  .map((m) => m.provider)
+  .filter((v, i, arr) => arr.indexOf(v) === i);
 
 export const CLONE_CAPABILITIES = [
   'All', 'Language', 'Vision', 'Code', 'Image Gen', 'Audio', 'Open Source',

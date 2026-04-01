@@ -1,16 +1,20 @@
+/**
+ * _app.tsx — application shell.
+ *
+ * Provider order (required — do not reorder):
+ *   Redux Provider         — must be outermost so RTK Query works
+ *     AuthProvider         — reads from Redux, provides user state to the tree
+ *       getLayout(page)    — per-page layout (ClonePageLayout, CloneAppLayout …)
+ *
+ * Each page declares its own layout via `getLayout` — see workspace-conventions.md.
+ * ThemeProvider lives inside the layout shells (CloneAppShell), not here.
+ */
 import type { ReactElement, ReactNode } from 'react';
 import type { NextPage } from 'next';
 import type { AppProps } from 'next/app';
 import { Provider } from 'react-redux';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import { SnackbarProvider } from 'notistack';
 import { store } from '@/redux/store';
-import theme from '@/theme';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { SnackbarUtilsConfigurator } from '@/lib/snackbar';
-import ErrorBoundary from '@/components/ErrorBoundary';
-import MainLayout from '@/layout/MainLayout';
 import '@/styles/globals.css';
 
 export type NextPageWithLayout = NextPage & {
@@ -22,19 +26,13 @@ type AppPropsWithLayout = AppProps & {
 };
 
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
-  const getLayout = Component.getLayout ?? ((page) => <MainLayout>{page}</MainLayout>);
+  const getLayout = Component.getLayout ?? ((page: ReactElement) => page);
 
   return (
     <Provider store={store}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <AuthProvider>
-          <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-            <SnackbarUtilsConfigurator />
-            <ErrorBoundary>{getLayout(<Component {...pageProps} />)}</ErrorBoundary>
-          </SnackbarProvider>
-        </AuthProvider>
-      </ThemeProvider>
+      <AuthProvider>
+        {getLayout(<Component {...pageProps} />)}
+      </AuthProvider>
     </Provider>
   );
 }

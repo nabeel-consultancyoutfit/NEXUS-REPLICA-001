@@ -154,14 +154,38 @@ export function CloneMarketplaceSidebar({ filters, setFilters, total }: SidebarP
               key={String(val)}
               onClick={() => setFilters((prev) => ({ ...prev, minRating: val }))}
               sx={{
-                px: '10px', py: '4px', borderRadius: '2rem', cursor: 'pointer',
-                fontSize: '0.72rem', fontWeight: 600,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 0.3,
+                minWidth: val === null ? 52 : 58,
+                px: '12px',
+                py: '6px',
+                borderRadius: '999px',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                lineHeight: 1,
+                fontSize: '0.72rem',
+                fontWeight: 500,
                 border: `1px solid ${filters.minRating === val ? CLONE_TOKENS.accent : CLONE_TOKENS.border}`,
                 backgroundColor: filters.minRating === val ? CLONE_TOKENS.accent : CLONE_TOKENS.white,
                 color: filters.minRating === val ? '#fff' : CLONE_TOKENS.text2,
+                flexShrink: 0,
               }}
             >
-              {val === null ? 'Any' : `${val}+`} ★
+              <Box component="span">{val === null ? 'Any' : `${val}+`}</Box>
+              {val !== null && (
+                <Box
+                  component="span"
+                  sx={{
+                    color: filters.minRating === val ? '#FDE7A1' : '#D6A52D',
+                    fontSize: '0.8rem',
+                    lineHeight: 1,
+                  }}
+                >
+                  ★
+                </Box>
+              )}
             </Box>
           ))}
         </Stack>
@@ -309,19 +333,28 @@ export default function CloneMarketplacePage() {
         Showing {filtered.length} of {CLONE_MOCK_MODELS.length} models
       </Typography>
 
-      {filtered.length > 0 ? (
-        <Grid container spacing={2}>
-          {filtered.map((model) => (
-            <Grid key={model.id} item xs={12} sm={6} md={4} lg={3} xl={2.4}>
-              <CloneModelCard model={model} />
-            </Grid>
-          ))}
-        </Grid>
-      ) : (
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography sx={{ fontSize: '2rem', mb: 1 }}>🔍</Typography>
-          <Typography sx={{ fontWeight: 600, color: CLONE_TOKENS.text, mb: 0.5 }}>No models found</Typography>
-          <Typography sx={{ fontSize: '0.875rem', color: CLONE_TOKENS.text2 }}>Try adjusting your filters</Typography>
+      <Grid container spacing={2}>
+        {filtered.map((model) => (
+          <Grid key={model.id} item xs={12} sm={6} md={4} lg={3}>
+            <CloneModelCard model={model} />
+          </Grid>
+        ))}
+      </Grid>
+
+      {filtered.length === 0 && (
+        <Box
+          sx={{
+            textAlign:  'center',
+            py:         8,
+            color:      CLONE_TOKENS.text3,
+          }}
+        >
+          <Typography sx={{ fontSize: '1rem', fontWeight: 600, mb: 1 }}>
+            No models match your filters
+          </Typography>
+          <Typography sx={{ fontSize: '0.82rem' }}>
+            Try adjusting your search or clearing some filters.
+          </Typography>
         </Box>
       )}
     </Box>

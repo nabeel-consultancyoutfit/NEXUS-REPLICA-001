@@ -7,11 +7,12 @@
  *   Category grid: Create Image | Generate Audio | Create Video | …
  *   Featured models section
  */
-import React, { useState } from 'react';
+import React from 'react';
 import NextLink from 'next/link';
+import { useRouter } from 'next/router';
 import { Box, Typography, Stack, Button, Grid } from '@mui/material';
 import { CLONE_TOKENS } from '@/theme/clone-theme';
-import CloneSearchBar from '../../components/CloneSearchBar';
+import CloneHeroSearchCard from '../../components/CloneHeroSearchCard';
 import CloneModelCard from '../../components/CloneModelCard';
 import { CLONE_MOCK_MODELS } from '../../mock';
 
@@ -31,8 +32,12 @@ const TASK_CATEGORIES = [
 ];
 
 export default function CloneHomePage() {
-  const [searchValue, setSearchValue] = useState('');
+  const router  = useRouter();
   const featured = CLONE_MOCK_MODELS.filter((m) => m.badge === 'hot').slice(0, 5);
+
+  const handleSearchComplete = (prompt: string) => {
+    router.push({ pathname: '/ai/chat', query: { prompt } });
+  };
 
   return (
     <Box sx={{ backgroundColor: CLONE_TOKENS.bg, minHeight: '100vh' }}>
@@ -81,7 +86,7 @@ export default function CloneHomePage() {
           component="h1"
           sx={{
             fontFamily:    '"Syne", sans-serif',
-            fontWeight:    800,
+            fontWeight:    600,
             fontSize:      'clamp(2.8rem, 7vw, 5.5rem)',
             lineHeight:    1.05,
             letterSpacing: '-0.03em',
@@ -108,50 +113,30 @@ export default function CloneHomePage() {
           Just click the box below — we&apos;ll do the rest together. ✨
         </Typography>
 
-        {/* Search + CTA */}
-        <Box
+        {/* Hero guided-discovery search card */}
+        <CloneHeroSearchCard onComplete={handleSearchComplete} />
+
+        <Typography
           sx={{
-            maxWidth:        600,
-            mx:              'auto',
-            display:         'flex',
-            gap:             1,
-            alignItems:      'center',
-            backgroundColor: CLONE_TOKENS.white,
-            border:          `1px solid ${CLONE_TOKENS.border}`,
-            borderRadius:    '16px',
-            px:              1.5,
-            py:              0.75,
-            boxShadow:       `0 4px 20px rgba(28,26,22,0.08)`,
+            mt:        '1rem',
+            fontSize:  '0.72rem',
+            color:     CLONE_TOKENS.text3,
           }}
         >
-          <Box sx={{ flex: 1 }}>
-            <CloneSearchBar
-              placeholder="Click here and type anything — or just say hi"
-              value={searchValue}
-              onChange={setSearchValue}
-            />
+          Click the box above to start the guided flow · or{' '}
+          <Box
+            component={NextLink}
+            href="/ai/chat"
+            sx={{
+              color:          CLONE_TOKENS.accent,
+              fontWeight:     600,
+              textDecoration: 'none',
+              '&:hover':      { textDecoration: 'underline' },
+            }}
+          >
+            jump straight to chat
           </Box>
-          <Box component={NextLink} href="/clone/marketplace" sx={{ textDecoration: 'none' }}>
-            <Button
-              variant="contained"
-              sx={{
-                background:   `linear-gradient(135deg, ${CLONE_TOKENS.accent} 0%, ${CLONE_TOKENS.accentDark} 100%)`,
-                color:        '#fff',
-                fontWeight:   700,
-                px:           2.5,
-                py:           1.1,
-                borderRadius: '12px',
-                whiteSpace:   'nowrap',
-                fontSize:     '0.875rem',
-                '&:hover': {
-                  background: `linear-gradient(135deg, ${CLONE_TOKENS.accentDark} 0%, #8A3D10 100%)`,
-                },
-              }}
-            >
-              🔍 Let&apos;s go
-            </Button>
-          </Box>
-        </Box>
+        </Typography>
       </Box>
 
       {/* ── Task Category Grid ───────────────────────────── */}
@@ -160,6 +145,9 @@ export default function CloneHomePage() {
           {TASK_CATEGORIES.map(({ icon, label }) => (
             <Grid key={label} item xs={6} sm={4} md={3} lg={2}>
               <Box
+                onClick={() =>
+                  router.push({ pathname: '/ai/chat', query: { prompt: `I want to: ${label}` } })
+                }
                 sx={{
                   display:         'flex',
                   flexDirection:   'column',
@@ -212,7 +200,7 @@ export default function CloneHomePage() {
           >
             🔥 Trending Models
           </Typography>
-          <Box component={NextLink} href="/clone/marketplace" sx={{ textDecoration: 'none' }}>
+          <Box component={NextLink} href="/ai/marketplace" sx={{ textDecoration: 'none' }}>
             <Button
               variant="text"
               sx={{

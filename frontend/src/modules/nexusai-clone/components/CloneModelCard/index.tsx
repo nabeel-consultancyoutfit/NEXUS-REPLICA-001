@@ -29,6 +29,7 @@ export default function CloneModelCard({ model, onClick }: CloneModelCardProps) 
         display:         'flex',
         flexDirection:   'column',
         gap:             1,
+        minHeight:       240,
         transition:      'transform 0.18s ease, box-shadow 0.18s ease',
         '&:hover': {
           transform:  'translateY(-3px)',
@@ -92,7 +93,7 @@ export default function CloneModelCard({ model, onClick }: CloneModelCardProps) 
           color:      CLONE_TOKENS.text2,
           lineHeight: 1.5,
           display:    '-webkit-box',
-          WebkitLineClamp: 2,
+          WebkitLineClamp: 3,
           WebkitBoxOrient: 'vertical',
           overflow:   'hidden',
           flexGrow:   1,
@@ -102,7 +103,7 @@ export default function CloneModelCard({ model, onClick }: CloneModelCardProps) 
       </Typography>
 
       {/* ── Capability chips ───────────────────────────── */}
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '4px', minHeight: 52, alignContent: 'flex-start' }}>
         {model.capabilities.slice(0, 3).map((cap) => (
           <Box
             key={cap}
@@ -123,43 +124,74 @@ export default function CloneModelCard({ model, onClick }: CloneModelCardProps) 
       </Box>
 
       {/* ── Footer: rating + price + CTA ───────────────── */}
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mt: 'auto', pt: 0.5 }}>
-        {/* Rating */}
-        <Stack direction="row" alignItems="center" spacing={0.5}>
-          <StarIcon sx={{ fontSize: 13, color: '#FBBF24' }} />
-          <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, color: CLONE_TOKENS.text }}>
-            {model.rating.toFixed(1)}
-          </Typography>
-          <Typography sx={{ fontSize: '0.68rem', color: CLONE_TOKENS.text3 }}>
-            ({model.reviewCount.toLocaleString()})
+      <Stack
+        spacing={0.85}
+        sx={{
+          mt:         'auto',
+          pt:         1,
+          borderTop:  `1px solid ${CLONE_TOKENS.border}`,
+        }}
+      >
+        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
+          <Stack direction="row" alignItems="center" spacing={0.5} sx={{ minWidth: 0 }}>
+            <StarIcon sx={{ fontSize: 13, color: '#FBBF24' }} />
+            <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, color: CLONE_TOKENS.text }}>
+              {model.rating.toFixed(1)}
+            </Typography>
+            <Typography
+              sx={{
+                fontSize:   '0.68rem',
+                color:      CLONE_TOKENS.text3,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              ({model.reviewCount.toLocaleString()})
+            </Typography>
+          </Stack>
+
+          <Typography
+            sx={{
+              fontSize:   '0.68rem',
+              fontWeight: 600,
+              color:      CLONE_TOKENS.text3,
+              whiteSpace: 'nowrap',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+            }}
+          >
+            {model.pricingType === 'free' || model.pricePerMToken === undefined ? 'No setup fee' : 'Pay as you go'}
           </Typography>
         </Stack>
 
-        {/* Price */}
-        <Stack direction="row" alignItems="center" spacing={1}>
-          {model.pricePerMToken !== undefined ? (
-            <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, color: CLONE_TOKENS.text }}>
-              ${model.pricePerMToken.toFixed(2)}/1M tk
-            </Typography>
-          ) : (
-            <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, color: CLONE_TOKENS.green }}>
-              Free
-            </Typography>
-          )}
-
-          {/* How to Use link */}
+        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1.5}>
           <Typography
             sx={{
-              fontSize:   '0.72rem',
-              fontWeight: 600,
-              color:      CLONE_TOKENS.accent,
-              cursor:     'pointer',
-              whiteSpace: 'nowrap',
-              '&:hover':  { textDecoration: 'underline' },
+              fontSize:   '0.75rem',
+              fontWeight: 700,
+              color:      CLONE_TOKENS.text,
             }}
           >
-            How to Use →
+            {model.pricingType === 'free' || model.pricePerMToken === undefined
+              ? 'Free'
+              : `$${model.pricePerMToken}/M`}
           </Typography>
+
+          <Box
+            sx={{
+              px:              '0.75rem',
+              py:              '0.3rem',
+              borderRadius:    '8px',
+              backgroundColor: CLONE_TOKENS.accent,
+              color:           '#fff',
+              fontSize:        '0.72rem',
+              fontWeight:      700,
+              cursor:          'pointer',
+              transition:      'opacity 0.15s ease',
+              '&:hover':       { opacity: 0.88 },
+            }}
+          >
+            Try Now
+          </Box>
         </Stack>
       </Stack>
     </Box>

@@ -119,10 +119,13 @@ export default function CloneRightPanel() {
                   px:              1,
                   py:              0.625,
                   borderRadius:    '8px',
+                  border:          `1px solid ${CLONE_TOKENS.border}`,
+                  backgroundColor: CLONE_TOKENS.white,
                   cursor:          'pointer',
-                  transition:      'background 0.12s ease',
+                  transition:      'background 0.12s ease, border-color 0.12s ease',
                   '&:hover': {
                     backgroundColor: CLONE_TOKENS.bg,
+                    borderColor:     CLONE_TOKENS.accentLight,
                   },
                 }}
               >
@@ -134,7 +137,7 @@ export default function CloneRightPanel() {
                     fontSize:    '0.8rem',
                     color:       CLONE_TOKENS.text2,
                     fontWeight:  400,
-                    '&:hover':   { color: CLONE_TOKENS.text },
+                    '&:hover':   { color: CLONE_TOKENS.accent },
                   }}
                 >
                   {label}

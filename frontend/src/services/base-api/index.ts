@@ -1,22 +1,39 @@
+/**
+ * RTK Query base API.
+ *
+ * All feature-specific APIs (auth, users, models …) are created by calling
+ * `baseApi.injectEndpoints()` in their own service files.
+ *
+ * The `prepareHeaders` function reads `auth.accessToken` from Redux state and
+ * injects it as a Bearer token — this is the SINGLE point of auth header
+ * injection. Do not duplicate this logic elsewhere.
+ *
+ * When adding new feature services, add their tag types to the `tagTypes` list
+ * below. Do not remove existing tags.
+ */
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { RootState } from '@/redux/store';
 
-const baseUrl =
-  process.env.NEXT_PUBLIC_BASE_URL || 'https://jsonplaceholder.typicode.com';
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3008/api';
 
 export const baseApi = createApi({
-  reducerPath: 'baseApi',
+  reducerPath: 'baseApi',   // referenced in store.ts — do not rename
+
   baseQuery: fetchBaseQuery({
-    baseUrl,
+    baseUrl: API_BASE,
+
     prepareHeaders: (headers, { getState }) => {
-      const state = getState() as RootState;
-      const token = state.auth.accessToken;
+      const token = (getState() as RootState).auth.accessToken;
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
       }
       return headers;
     },
   }),
-  tagTypes: ['Auth', 'Users', 'Posts', 'Demo', 'Settings', 'Notifications'],
+
+  tagTypes: ['Auth', 'User', 'Model'],
+
+  // Endpoints are injected by each feature service file
   endpoints: () => ({}),
 });

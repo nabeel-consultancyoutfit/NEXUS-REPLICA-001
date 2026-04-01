@@ -1,77 +1,82 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+/**
+ * authSlice — Redux slice for authentication state.
+ *
+ * This slice keeps `accessToken` in the Redux store so that
+ * the RTK Query `prepareHeaders` function can inject the
+ * Authorization header without touching localStorage directly.
+ *
+ * localStorage helpers (persistAuth / loadPersistedAuth / clearPersistedAuth)
+ * are exported from here and used by AuthContext on mount and logout.
+ * Do NOT rename the localStorage keys — AuthContext depends on them.
+ */
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import type { AuthUser } from '@/types/shared';
 
-export interface AuthUser {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-  avatar?: string;
+// ─── localStorage keys (canonical — do not rename) ───────────────────────────
+const LS_TOKEN = 'accessToken';
+const LS_EMAIL = 'userEmail';
+
+// ─── localStorage helpers ─────────────────────────────────────────────────────
+
+/** Write token + email to localStorage after a successful login / signup */
+export function persistAuth(token: string, user: AuthUser): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(LS_TOKEN, token);
+  localStorage.setItem(LS_EMAIL, user.email);
 }
 
+/** Read token + email from localStorage (called by AuthContext on mount) */
+export function loadPersistedAuth(): { token: string; email: string } | null {
+  if (typeof window === 'undefined') return null;
+  const token = localStorage.getItem(LS_TOKEN);
+  const email = localStorage.getItem(LS_EMAIL);
+  if (!token || !email) return null;
+  return { token, email };
+}
+
+/** Remove auth data from localStorage on logout */
+export function clearPersistedAuth(): void {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem(LS_TOKEN);
+  localStorage.removeItem(LS_EMAIL);
+}
+
+// ─── Slice ────────────────────────────────────────────────────────────────────
+
 export interface AuthState {
-  user: AuthUser | null;
   accessToken: string | null;
-  refreshToken: string | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  error: string | null;
+  user:        AuthUser | null;
 }
 
 const initialState: AuthState = {
-  user: null,
   accessToken: null,
-  refreshToken: null,
-  isAuthenticated: false,
-  isLoading: false,
-  error: null,
+  user:        null,
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setCredentials: (
+    /**
+     * Called after a successful login / signup or on page-load rehydration.
+     * Stores the JWT so prepareHeaders can attach it to every API request.
+     */
+    setCredentials(
       state,
-      action: PayloadAction<{
-        user: AuthUser;
-        accessToken: string;
-        refreshToken: string;
-      }>
-    ) => {
-      state.user = action.payload.user;
-      state.accessToken = action.payload.accessToken;
-      state.refreshToken = action.payload.refreshToken;
-      state.isAuthenticated = true;
-      state.error = null;
+      action: PayloadAction<{ token: string; user: AuthUser }>,
+    ) {
+      state.accessToken = action.payload.token;
+      state.user        = action.payload.user;
     },
-    clearCredentials: (state) => {
-      state.user = null;
+
+    /** Called on logout — wipes all auth state from Redux */
+    clearCredentials(state) {
       state.accessToken = null;
-      state.refreshToken = null;
-      state.isAuthenticated = false;
-      state.error = null;
-    },
-    setAuthLoading: (state, action: PayloadAction<boolean>) => {
-      state.isLoading = action.payload;
-    },
-    setAuthError: (state, action: PayloadAction<string | null>) => {
-      state.error = action.payload;
-    },
-    updateUser: (state, action: PayloadAction<Partial<AuthUser>>) => {
-      if (state.user) {
-        state.user = { ...state.user, ...action.payload };
-      }
+      state.user        = null;
     },
   },
 });
 
-export const {
-  setCredentials,
-  clearCredentials,
-  setAuthLoading,
-  setAuthError,
-  updateUser,
-} = authSlice.actions;
-
+export const { setCredentials, clearCredentials } = authSlice.actions;
 export default authSlice.reducer;

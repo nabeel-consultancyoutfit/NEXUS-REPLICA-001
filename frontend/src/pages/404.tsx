@@ -1,63 +1,71 @@
-import { ReactElement } from 'react';
-import { useRouter } from 'next/router';
-import { Box, Container, Typography } from '@mui/material';
-import { SearchOffOutlined } from '@mui/icons-material';
-import CustomButton from '@/components/Buttons/CustomButton';
-import PlainLayout from '@/layout/PlainLayout';
+import type { ReactElement } from 'react';
+import { Box, Typography } from '@mui/material';
+import NextLink from 'next/link';
+import type { NextPageWithLayout } from './_app';
+import { ClonePageLayout } from '@/layouts/clone-layout/CloneAppShell';
+import { CLONE_TOKENS } from '@/theme/clone-theme';
 
 function NotFoundContent() {
-  const router = useRouter();
-
   return (
-    <Container maxWidth="sm">
-      <Box
+    <Box
+      sx={{
+        minHeight:      `calc(100vh - ${CLONE_TOKENS.navbarHeight}px)`,
+        display:        'flex',
+        flexDirection:  'column',
+        alignItems:     'center',
+        justifyContent: 'center',
+        backgroundColor: CLONE_TOKENS.bg,
+        textAlign:      'center',
+        px:             2,
+      }}
+    >
+      <Typography
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '100vh',
-          textAlign: 'center',
+          fontFamily:  '"Syne", sans-serif',
+          fontSize:    '6rem',
+          fontWeight:  800,
+          color:       CLONE_TOKENS.accent,
+          lineHeight:  1,
+          mb:          1,
         }}
       >
-        <Box
-          sx={{
-            mb: 3,
-            p: 2,
-            backgroundColor: 'action.hover',
-            borderRadius: '50%',
-            display: 'inline-flex',
-          }}
-        >
-          <SearchOffOutlined
-            sx={{
-              fontSize: 80,
-              color: 'text.secondary',
-            }}
-          />
-        </Box>
-
-        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-          404 - Page Not Found
-        </Typography>
-
-        <Typography variant="body2" color="textSecondary" sx={{ mb: 4, maxWidth: 400 }}>
-          The page you're looking for doesn't exist. It might have been removed or the URL might
-          be incorrect.
-        </Typography>
-
-        <CustomButton
-          label="Go Back to Dashboard"
-          onClick={() => router.push('/dashboard')}
-          variant="contained"
-        />
+        404
+      </Typography>
+      <Typography
+        variant="h5"
+        sx={{ fontFamily: '"Syne", sans-serif', fontWeight: 700, color: CLONE_TOKENS.text, mb: 1 }}
+      >
+        Page not found
+      </Typography>
+      <Typography sx={{ fontSize: '0.95rem', color: CLONE_TOKENS.text2, mb: 3 }}>
+        The page you&apos;re looking for doesn&apos;t exist.
+      </Typography>
+      <Box
+        component={NextLink}
+        href="/ai"
+        sx={{
+          display:         'inline-block',
+          px:              3,
+          py:              1.25,
+          borderRadius:    '2rem',
+          background:      `linear-gradient(135deg, ${CLONE_TOKENS.accent} 0%, ${CLONE_TOKENS.accentDark} 100%)`,
+          color:           '#fff',
+          fontWeight:      700,
+          fontSize:        '0.9rem',
+          fontFamily:      '"Instrument Sans", sans-serif',
+          textDecoration:  'none',
+          transition:      'background 0.15s ease',
+          '&:hover': {
+            background: `linear-gradient(135deg, ${CLONE_TOKENS.accentDark} 0%, #8A3D10 100%)`,
+          },
+        }}
+      >
+        ← Back to home
       </Box>
-    </Container>
+    </Box>
   );
 }
 
-export default function NotFound404Page() {
-  return <NotFoundContent />;
-}
-
-NotFound404Page.getLayout = (page: ReactElement) => <PlainLayout>{page}</PlainLayout>;
+const NotFound404Page: NextPageWithLayout = () => <NotFoundContent />;
+NotFound404Page.getLayout = (page: ReactElement) => <ClonePageLayout>{page}</ClonePageLayout>;
+export default NotFound404Page;

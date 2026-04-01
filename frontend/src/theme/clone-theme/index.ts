@@ -1,7 +1,7 @@
 /**
  * Clone Theme — matches nexusai-db.netlify.app exactly.
  * DO NOT import from this file inside the existing workspace app.
- * Only used by CloneAppShell and modules/nexusai-clone pages.
+ * Only used by CloneAppShell and modules/nexusai pages.
  */
 import { createTheme, ThemeOptions } from '@mui/material/styles';
 

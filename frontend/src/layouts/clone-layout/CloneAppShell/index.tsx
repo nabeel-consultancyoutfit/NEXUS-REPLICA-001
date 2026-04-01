@@ -5,7 +5,7 @@
  *   CloneMarketLayout  — Navbar + left filter rail (marketplace / discover)
  *   CloneAppLayout     — Navbar + left model sidebar + right panel (chat / agents)
  *
- * IMPORTANT: This shell must wrap every page in modules/nexusai-clone.
+ * IMPORTANT: This shell must wrap every page in modules/nexusai.
  * It must NEVER be used inside the existing workspace app.
  */
 import React from 'react';
@@ -73,7 +73,7 @@ export function CloneMarketLayout({ children, sidebar }: CloneMarketLayoutProps)
           {sidebar && (
             <Box
               sx={{
-                width:           200,
+                width:           225,
                 flexShrink:      0,
                 height:          `calc(100vh - ${CLONE_TOKENS.navbarHeight}px)`,
                 position:        'sticky',
