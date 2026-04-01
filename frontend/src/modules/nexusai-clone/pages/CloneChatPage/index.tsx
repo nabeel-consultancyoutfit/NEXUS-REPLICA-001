@@ -39,6 +39,7 @@ import CloneUserBadge            from '../../components/CloneUserBadge';
 import CloneModelRecommendationCard from '../../components/CloneModelRecommendationCard';
 import CloneModelFollowupCard from '../../components/CloneModelFollowupCard';
 import { useChatSimulation }     from '../../hooks/useChatSimulation';
+import { useComposerEnhancements } from '../../hooks/useComposerEnhancements';
 import { GUIDED_STEP_1, GUIDED_STEP_2, GUIDED_STEP_3 } from '../../mock/chat-flows';
 import type { ChatFlowChoice }   from '../../types';
 
@@ -117,6 +118,21 @@ export default function CloneChatPage({
   const [activeChip, setActiveChip] = useState('');
   const [isFocused,  setIsFocused]  = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const {
+    attachments,
+    isListening,
+    browserSpeechSupported,
+    fileInputRef,
+    imageInputRef,
+    toggleVoiceInput,
+    appendFiles,
+    openFilePicker,
+    openImagePicker,
+    removeAttachment,
+    clearAttachments,
+  } = useComposerEnhancements({
+    onAppendText: (text) => setInputText((prev) => `${prev}${prev.trim() ? ' ' : ''}${text}`.trim()),
+  });
 
   // Auto-send initial prompt from homepage guided-discovery flow
   useEffect(() => {
@@ -140,10 +156,14 @@ export default function CloneChatPage({
   };
 
   const submitText = () => {
-    if (!inputText.trim()) return;
-    handleSendText(inputText);
+    if (!inputText.trim() && attachments.length === 0) return;
+    const attachmentSummary = attachments.length > 0
+      ? `\n\nAttached files: ${attachments.map((file) => file.name).join(', ')}`
+      : '';
+    handleSendText(`${inputText.trim() || 'Please review my attached files.'}${attachmentSummary}`);
     setInputText('');
     setActiveChip(''); // clear chip highlight after every send
+    clearAttachments();
   };
 
   const handleChipClick = (chip: string) => {
@@ -449,6 +469,27 @@ export default function CloneChatPage({
             overflow:        'hidden',
           }}
         >
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            hidden
+            onChange={(e) => {
+              appendFiles(e.target.files);
+              e.currentTarget.value = '';
+            }}
+          />
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            hidden
+            onChange={(e) => {
+              appendFiles(e.target.files);
+              e.currentTarget.value = '';
+            }}
+          />
           {/* Text input row */}
           <Box
             sx={{
@@ -500,10 +541,16 @@ export default function CloneChatPage({
                 key={title}
                 title={title}
                 size="small"
+                onClick={() => {
+                  if (title === 'Voice input' && browserSpeechSupported) toggleVoiceInput();
+                  if (title === 'Upload file' || title === 'Attach file') openFilePicker();
+                  if (title === 'Upload image') openImagePicker();
+                }}
                 sx={{
-                  color:     CLONE_TOKENS.text3,
+                  color:     title === 'Voice input' && isListening ? CLONE_TOKENS.accent : CLONE_TOKENS.text3,
                   p:         '5px',
                   borderRadius: '6px',
+                  backgroundColor: title === 'Voice input' && isListening ? CLONE_TOKENS.accentLight : 'transparent',
                   '&:hover': { color: CLONE_TOKENS.text2, backgroundColor: CLONE_TOKENS.bg2 },
                 }}
               >
@@ -552,6 +599,64 @@ export default function CloneChatPage({
             </IconButton>
           </Box>
         </Box>
+
+        {attachments.length > 0 && (
+          <Box
+            sx={{
+              maxWidth: 860,
+              mx: 'auto',
+              mt: '0.55rem',
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '0.45rem',
+            }}
+          >
+            {attachments.map((file, index) => (
+              <Box
+                key={`${file.name}-${index}`}
+                sx={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.45rem',
+                  px: '0.7rem',
+                  py: '0.35rem',
+                  borderRadius: '999px',
+                  border: `1px solid ${CLONE_TOKENS.border}`,
+                  backgroundColor: CLONE_TOKENS.white,
+                  maxWidth: 220,
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontSize: '0.72rem',
+                    color: CLONE_TOKENS.text2,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
+                  {file.name}
+                </Typography>
+                <Box
+                  component="button"
+                  type="button"
+                  onClick={() => removeAttachment(index)}
+                  sx={{
+                    border: 'none',
+                    background: 'transparent',
+                    color: CLONE_TOKENS.text3,
+                    cursor: 'pointer',
+                    fontSize: '0.82rem',
+                    lineHeight: 1,
+                    p: 0,
+                  }}
+                >
+                  ×
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        )}
 
         {/* Prompt category chips — visible only during welcome / before first send */}
         <Box

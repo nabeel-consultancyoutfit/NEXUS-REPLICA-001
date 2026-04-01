@@ -16,7 +16,11 @@ import React, { useState, useRef, useCallback } from 'react';
 import { Box, Typography, Stack, IconButton } from '@mui/material';
 import SendRoundedIcon  from '@mui/icons-material/SendRounded';
 import NorthIcon        from '@mui/icons-material/North';
+import MicNoneIcon from '@mui/icons-material/MicNone';
+import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined';
+import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import { CLONE_TOKENS } from '@/theme/clone-theme';
+import { useComposerEnhancements } from '../../hooks/useComposerEnhancements';
 
 // ─── Step definitions ─────────────────────────────────────────────────────────
 
@@ -181,6 +185,24 @@ export default function CloneHeroSearchCard({ onComplete }: CloneHeroSearchCardP
   const [focused,   setFocused]   = useState(false);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const {
+    attachments,
+    isListening,
+    fileInputRef,
+    imageInputRef,
+    toggleVoiceInput,
+    appendFiles,
+    openFilePicker,
+    openImagePicker,
+    removeAttachment,
+    clearAttachments,
+  } = useComposerEnhancements({
+    onAppendText: (text) => {
+      setInputText((prev) => `${prev}${prev.trim() ? ' ' : ''}${text}`.trim());
+      setActive(true);
+      inputRef.current?.focus();
+    },
+  });
 
   const totalSteps  = GUIDED_STEPS.length;
   const currentStep = GUIDED_STEPS[stepIndex];
@@ -210,9 +232,14 @@ export default function CloneHeroSearchCard({ onComplete }: CloneHeroSearchCardP
   // ── Free-text send ──────────────────────────────────────────────────────
   const handleSend = useCallback(() => {
     const text = inputText.trim();
-    if (!text) return;
-    onComplete(text);
-  }, [inputText, onComplete]);
+    const attachmentSummary = attachments.length > 0
+      ? `\n\nAttached files: ${attachments.map((file) => file.name).join(', ')}`
+      : '';
+    if (!text && attachments.length === 0) return;
+    onComplete(`${text || 'Please review my attached files.'}${attachmentSummary}`);
+    setInputText('');
+    clearAttachments();
+  }, [attachments, clearAttachments, inputText, onComplete]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -438,6 +465,55 @@ export default function CloneHeroSearchCard({ onComplete }: CloneHeroSearchCardP
           }}
         />
 
+        {!active && (
+          <Stack direction="row" spacing={0.25} alignItems="center" sx={{ mr: 0.25 }}>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              hidden
+              onChange={(e) => {
+                appendFiles(e.target.files);
+                e.currentTarget.value = '';
+              }}
+            />
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              hidden
+              onChange={(e) => {
+                appendFiles(e.target.files);
+                e.currentTarget.value = '';
+              }}
+            />
+            <IconButton
+              onClick={toggleVoiceInput}
+              sx={{
+                width: 32,
+                height: 32,
+                color: isListening ? CLONE_TOKENS.accent : CLONE_TOKENS.text3,
+                backgroundColor: isListening ? CLONE_TOKENS.accentLight : 'transparent',
+              }}
+            >
+              <MicNoneIcon sx={{ fontSize: '1rem' }} />
+            </IconButton>
+            <IconButton
+              onClick={openFilePicker}
+              sx={{ width: 32, height: 32, color: CLONE_TOKENS.text3 }}
+            >
+              <AttachFileOutlinedIcon sx={{ fontSize: '1rem' }} />
+            </IconButton>
+            <IconButton
+              onClick={openImagePicker}
+              sx={{ width: 32, height: 32, color: CLONE_TOKENS.text3 }}
+            >
+              <ImageOutlinedIcon sx={{ fontSize: '1rem' }} />
+            </IconButton>
+          </Stack>
+        )}
+
         <IconButton
           onClick={handleSend}
           sx={{
@@ -459,6 +535,63 @@ export default function CloneHeroSearchCard({ onComplete }: CloneHeroSearchCardP
           }
         </IconButton>
       </Box>
+
+      {attachments.length > 0 && (
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '0.4rem',
+            px: '0.85rem',
+            pb: active ? '0.65rem' : '0.75rem',
+          }}
+        >
+          {attachments.map((file, index) => (
+            <Box
+              key={`${file.name}-${index}`}
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                px: '0.65rem',
+                py: '0.35rem',
+                borderRadius: '999px',
+                border: `1px solid ${CLONE_TOKENS.border}`,
+                backgroundColor: CLONE_TOKENS.bg,
+                maxWidth: 220,
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: '0.7rem',
+                  color: CLONE_TOKENS.text2,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {file.name}
+              </Typography>
+              <Box
+                component="button"
+                type="button"
+                onClick={() => removeAttachment(index)}
+                sx={{
+                  border: 'none',
+                  background: 'transparent',
+                  color: CLONE_TOKENS.text3,
+                  cursor: 'pointer',
+                  fontSize: '0.8rem',
+                  lineHeight: 1,
+                  p: 0,
+                }}
+              >
+                ×
+              </Box>
+            </Box>
+          ))}
+        </Box>
+      )}
 
       {/* ── Footer: skip link (active only) ─────────────────────────────── */}
       {active && (
