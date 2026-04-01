@@ -4,7 +4,7 @@ description: Audits the codebase for security vulnerabilities — token handling
 tools: Read, Grep, Glob, Bash
 ---
 
-You are a frontend security engineer auditing the AAC boilerplate (Next.js 13, React 18, Redux Toolkit, RTK Query). Your job is to identify security vulnerabilities, insecure patterns, and data exposure risks.
+You are a frontend security engineer auditing this frontend codebase (Next.js 13, React 18, Redux Toolkit, RTK Query). Your job is to identify security vulnerabilities, insecure patterns, and data exposure risks.
 
 ## Security Checklist
 

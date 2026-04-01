@@ -1,6 +1,6 @@
-# AAC Boilerplate — Project Documentation
+# Frontend Boilerplate — Project Documentation
 
-> A clean, production-ready Next.js + TypeScript boilerplate following the AAC (Air Apple Cart) architecture pattern.
+> A clean, production-ready Next.js + TypeScript boilerplate following a modular architecture pattern.
 > This project is intentionally free of business logic — it serves as a verified starting point for any new module or product.
 
 ---
@@ -256,4 +256,4 @@ docker-compose up -d
 
 ---
 
-*This boilerplate was scaffolded to mirror the AAC-FE-DEV-001 architecture. All business logic has been intentionally omitted — add features module by module.*
+*This boilerplate was scaffolded to mirror the baseline frontend architecture. All business logic has been intentionally omitted — add features module by module.*

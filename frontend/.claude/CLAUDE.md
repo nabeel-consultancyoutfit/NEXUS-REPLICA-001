@@ -1,4 +1,4 @@
-# AAC Boilerplate — Claude Context
+# Frontend Boilerplate — Claude Context
 
 This file gives Claude the essential context needed to work effectively in this codebase.
 
@@ -6,7 +6,7 @@ This file gives Claude the essential context needed to work effectively in this 
 
 ## What This Project Is
 
-A production-ready **Next.js 13 (Pages Router) + TypeScript** boilerplate for the AAC (Air Apple Cart) team. It is intentionally free of business logic — it is a verified starting point for any new product or module.
+A production-ready **Next.js 13 (Pages Router) + TypeScript** boilerplate for this team. It is intentionally free of business logic — it is a verified starting point for any new product or module.
 
 Full project documentation lives in `/CLAUDE.md` at the root.
 

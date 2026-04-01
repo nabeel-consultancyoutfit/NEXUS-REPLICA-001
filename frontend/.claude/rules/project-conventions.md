@@ -1,4 +1,4 @@
-# AAC Boilerplate — Project Rules for Claude
+# Frontend Boilerplate — Project Rules for Claude
 
 These rules apply to every task Claude performs in this codebase. Follow them without exception unless the user explicitly overrides one.
 
