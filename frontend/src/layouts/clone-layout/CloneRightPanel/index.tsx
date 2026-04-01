@@ -83,7 +83,7 @@ export default function CloneRightPanel({
   return (
     <Box
       sx={{
-        width:           `${CLONE_TOKENS.rightPanelWidth}px`,
+        width:           { xl: `${CLONE_TOKENS.rightPanelWidth}px` },
         flexShrink:      0,
         height:          `calc(100vh - ${CLONE_TOKENS.navbarHeight}px)`,
         position:        'sticky',

@@ -17,6 +17,7 @@ import {
   Stack,
   Typography,
   Button,
+  IconButton,
   Avatar,
   Menu,
   MenuItem,
@@ -24,12 +25,17 @@ import {
   ListItemIcon,
   ListItemText,
   ButtonBase,
+  Drawer,
 } from '@mui/material';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import LogoutIcon        from '@mui/icons-material/Logout';
 import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
 import { CLONE_TOKENS }  from '@/theme/clone-theme';
 import { useAuthContext } from '@/contexts/AuthContext';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 import {
   HOME_LANGUAGE_COPY,
   LANGUAGE_CHANGE_EVENT,
@@ -48,6 +54,8 @@ export default function CloneNavbar() {
   const router                     = useRouter();
   const { user, isAuthenticated, logout } = useAuthContext();
   const isHomePage = router.pathname === '/ai';
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   // Dropdown anchor for authenticated avatar menu
   const [anchorEl, setAnchorEl]    = useState<HTMLElement | null>(null);
@@ -55,11 +63,13 @@ export default function CloneNavbar() {
   const [languageAnchorEl, setLanguageAnchorEl] = useState<HTMLElement | null>(null);
   const languageMenuOpen = Boolean(languageAnchorEl);
   const [selectedLanguageCode, setSelectedLanguageCode] = useState<string>('EN');
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const openMenu  = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
   const closeMenu = () => setAnchorEl(null);
   const openLanguageMenu = (e: React.MouseEvent<HTMLElement>) => setLanguageAnchorEl(e.currentTarget);
   const closeLanguageMenu = () => setLanguageAnchorEl(null);
+  const closeMobileNav = () => setMobileNavOpen(false);
 
   useEffect(() => {
     const syncLanguage = () => setSelectedLanguageCode(getStoredHomeLanguage());
@@ -112,7 +122,7 @@ export default function CloneNavbar() {
         display:              'flex',
         alignItems:           'center',
         justifyContent:       'space-between',
-        px:                   '2rem',
+        px:                   { xs: 1.25, sm: 1.75, md: '2rem' },
         backgroundColor:      'rgba(255,255,255,0.92)',
         backdropFilter:       'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
@@ -148,7 +158,7 @@ export default function CloneNavbar() {
             sx={{
               fontFamily:    '"Syne", sans-serif',
               fontWeight:    700,
-              fontSize:      '1rem',
+              fontSize:      { xs: '0.92rem', sm: '1rem' },
               color:         CLONE_TOKENS.text,
               letterSpacing: '-0.01em',
             }}
@@ -159,57 +169,59 @@ export default function CloneNavbar() {
       </Box>
 
       {/* ── CENTER: Nav links ───────────────────────────────── */}
-      <Stack direction="row" spacing={0.5} alignItems="center">
-        {navItems.map(({ label, href }) => {
-          const active =
-            router.pathname === href || router.pathname.startsWith(href + '/');
-          return (
-            <Box
-              key={href}
-              component={NextLink}
-              href={href}
-              sx={{ textDecoration: 'none' }}
-            >
+      {!isMobile && (
+        <Stack direction="row" spacing={0.5} alignItems="center">
+          {navItems.map(({ label, href }) => {
+            const active =
+              router.pathname === href || router.pathname.startsWith(href + '/');
+            return (
               <Box
-                sx={{
-                  px:           1.5,
-                  py:           0.75,
-                  borderRadius: '8px',
-                  cursor:       'pointer',
-                  position:     'relative',
-                  color:        active ? CLONE_TOKENS.accent : CLONE_TOKENS.text2,
-                  fontFamily:   '"Instrument Sans", sans-serif',
-                  fontWeight:   active ? 600 : 500,
-                  fontSize:     '0.875rem',
-                  transition:   'color 0.15s ease, background 0.15s ease',
-                  '&:hover': {
-                    color:           CLONE_TOKENS.text,
-                    backgroundColor: CLONE_TOKENS.bg,
-                  },
-                  '&::after': active
-                    ? {
-                        content:         '""',
-                        position:        'absolute',
-                        bottom:          -2,
-                        left:            '50%',
-                        transform:       'translateX(-50%)',
-                        width:           '60%',
-                        height:          2,
-                        borderRadius:    1,
-                        backgroundColor: CLONE_TOKENS.accent,
-                      }
-                    : {},
-                }}
+                key={href}
+                component={NextLink}
+                href={href}
+                sx={{ textDecoration: 'none' }}
               >
-                {label}
+                <Box
+                  sx={{
+                    px:           1.5,
+                    py:           0.75,
+                    borderRadius: '8px',
+                    cursor:       'pointer',
+                    position:     'relative',
+                    color:        active ? CLONE_TOKENS.accent : CLONE_TOKENS.text2,
+                    fontFamily:   '"Instrument Sans", sans-serif',
+                    fontWeight:   active ? 600 : 500,
+                    fontSize:     '0.875rem',
+                    transition:   'color 0.15s ease, background 0.15s ease',
+                    '&:hover': {
+                      color:           CLONE_TOKENS.text,
+                      backgroundColor: CLONE_TOKENS.bg,
+                    },
+                    '&::after': active
+                      ? {
+                          content:         '""',
+                          position:        'absolute',
+                          bottom:          -2,
+                          left:            '50%',
+                          transform:       'translateX(-50%)',
+                          width:           '60%',
+                          height:          2,
+                          borderRadius:    1,
+                          backgroundColor: CLONE_TOKENS.accent,
+                        }
+                      : {},
+                  }}
+                >
+                  {label}
+                </Box>
               </Box>
-            </Box>
-          );
-        })}
-      </Stack>
+            );
+          })}
+        </Stack>
+      )}
 
       {/* ── RIGHT: Guest buttons OR authenticated avatar ────── */}
-      <Stack direction="row" spacing={1.5} alignItems="center">
+      <Stack direction="row" spacing={{ xs: 0.75, sm: 1.5 }} alignItems="center">
         {isHomePage && (
           <>
             <ButtonBase
@@ -218,7 +230,7 @@ export default function CloneNavbar() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 0.65,
-                px: 1.1,
+                px: { xs: 0.8, sm: 1.1 },
                 py: 0.6,
                 borderRadius: '999px',
                 border: `1px solid ${CLONE_TOKENS.border}`,
@@ -433,35 +445,38 @@ export default function CloneNavbar() {
         ) : (
           // ── Guest: sign in + try it buttons ──────────────────
           <>
-            <Button
-              component={NextLink}
-              href="/signin"
-              variant="text"
-              sx={{
-                color:        CLONE_TOKENS.text2,
-                fontWeight:   500,
-                fontSize:     '0.875rem',
-                px:           1.5,
-                borderRadius: '2rem',
-                textTransform: 'none',
-                '&:hover': {
-                  backgroundColor: CLONE_TOKENS.bg,
-                  color:           CLONE_TOKENS.text,
-                },
-              }}
-            >
-              {copy.navbar.signIn}
-            </Button>
+            {!isMobile && (
+              <Button
+                component={NextLink}
+                href="/signin"
+                variant="text"
+                sx={{
+                  color:        CLONE_TOKENS.text2,
+                  fontWeight:   500,
+                  fontSize:     '0.875rem',
+                  px:           1.5,
+                  borderRadius: '2rem',
+                  textTransform: 'none',
+                  '&:hover': {
+                    backgroundColor: CLONE_TOKENS.bg,
+                    color:           CLONE_TOKENS.text,
+                  },
+                }}
+              >
+                {copy.navbar.signIn}
+              </Button>
+            )}
             <Button
               component={NextLink}
               href="/signup"
               variant="contained"
               sx={{
+                minWidth:      0,
                 background:    `linear-gradient(135deg, ${CLONE_TOKENS.accent} 0%, ${CLONE_TOKENS.accentDark} 100%)`,
                 color:         '#fff',
                 fontWeight:    600,
-                fontSize:      '0.875rem',
-                px:            1.75,
+                fontSize:      { xs: '0.8rem', sm: '0.875rem' },
+                px:            { xs: 1.15, sm: 1.75 },
                 py:            0.7,
                 borderRadius:  '2rem',
                 textTransform: 'none',
@@ -470,11 +485,71 @@ export default function CloneNavbar() {
                 },
               }}
             >
-              {copy.navbar.tryIt}
+              {isMobile ? 'Start' : copy.navbar.tryIt}
             </Button>
           </>
         )}
+
+        {isMobile && (
+          <IconButton
+            onClick={() => setMobileNavOpen(true)}
+            sx={{
+              width: 34,
+              height: 34,
+              border: `1px solid ${CLONE_TOKENS.border}`,
+              borderRadius: '10px',
+              color: CLONE_TOKENS.text2,
+            }}
+          >
+            <MenuIcon sx={{ fontSize: '1rem' }} />
+          </IconButton>
+        )}
       </Stack>
+
+      <Drawer
+        anchor="right"
+        open={mobileNavOpen}
+        onClose={closeMobileNav}
+        PaperProps={{
+          sx: {
+            width: 280,
+            p: 2,
+            backgroundColor: CLONE_TOKENS.white,
+          },
+        }}
+      >
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+          <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: CLONE_TOKENS.text }}>
+            Menu
+          </Typography>
+          <IconButton onClick={closeMobileNav}>
+            <CloseIcon sx={{ fontSize: '1rem' }} />
+          </IconButton>
+        </Stack>
+        <Stack spacing={0.75}>
+          {navItems.map(({ label, href }) => (
+            <Box
+              key={href}
+              component={NextLink}
+              href={href}
+              onClick={closeMobileNav}
+              sx={{
+                px: 1.1,
+                py: 0.9,
+                borderRadius: '10px',
+                textDecoration: 'none',
+                color: CLONE_TOKENS.text2,
+                backgroundColor: router.pathname === href ? CLONE_TOKENS.accentLight : CLONE_TOKENS.white,
+                border: `1px solid ${CLONE_TOKENS.border}`,
+                fontSize: '0.9rem',
+                fontWeight: 600,
+              }}
+            >
+              {label}
+            </Box>
+          ))}
+        </Stack>
+      </Drawer>
     </Box>
   );
 }

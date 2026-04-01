@@ -39,7 +39,7 @@ export default function CloneSidebar({ selectedModelId, onSelectModel }: CloneSi
   return (
     <Box
       sx={{
-        width:           `${CLONE_TOKENS.sidebarWidth}px`,
+        width:           { lg: `${CLONE_TOKENS.sidebarWidth}px`, xl: `${CLONE_TOKENS.sidebarWidth}px` },
         flexShrink:      0,
         height:          `calc(100vh - ${CLONE_TOKENS.navbarHeight}px)`,
         position:        'sticky',

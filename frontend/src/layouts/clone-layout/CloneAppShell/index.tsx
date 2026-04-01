@@ -68,22 +68,23 @@ export function CloneMarketLayout({ children, sidebar }: CloneMarketLayoutProps)
       <CssBaseline />
       <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <CloneNavbar />
-        <Box sx={{ display: 'flex', flex: 1 }}>
+        <Box sx={{ display: 'flex', flex: 1, flexDirection: { xs: 'column', md: 'row' } }}>
           {/* Left filter rail */}
           {sidebar && (
             <Box
               sx={{
-                width:           225,
+                width:           { xs: '100%', md: 225 },
                 flexShrink:      0,
-                height:          `calc(100vh - ${CLONE_TOKENS.navbarHeight}px)`,
-                position:        'sticky',
-                top:             `${CLONE_TOKENS.navbarHeight}px`,
-                overflowY:       'auto',
+                height:          { xs: 'auto', md: `calc(100vh - ${CLONE_TOKENS.navbarHeight}px)` },
+                position:        { xs: 'static', md: 'sticky' },
+                top:             { xs: 'auto', md: `${CLONE_TOKENS.navbarHeight}px` },
+                overflowY:       { xs: 'visible', md: 'auto' },
                 overflowX:       'hidden',
                 backgroundColor: CLONE_TOKENS.white,
-                borderRight:     `1px solid ${CLONE_TOKENS.border}`,
+                borderRight:     { xs: 'none', md: `1px solid ${CLONE_TOKENS.border}` },
+                borderBottom:    { xs: `1px solid ${CLONE_TOKENS.border}`, md: 'none' },
                 py:              2,
-                px:              2,
+                px:              { xs: 1.5, sm: 2, md: 2 },
                 '&::-webkit-scrollbar':       { width: 4 },
                 '&::-webkit-scrollbar-track': { background: 'transparent' },
                 '&::-webkit-scrollbar-thumb': { background: CLONE_TOKENS.bg3, borderRadius: 4 },
@@ -122,12 +123,16 @@ export function CloneAppLayout({
       <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <CloneNavbar />
         <Box sx={{ display: 'flex', flex: 1 }}>
-          <CloneSidebar
-            selectedModelId={selectedModelId}
-            onSelectModel={onSelectModel}
-          />
+          <Box sx={{ display: { xs: 'none', lg: 'block' } }}>
+            <CloneSidebar
+              selectedModelId={selectedModelId}
+              onSelectModel={onSelectModel}
+            />
+          </Box>
           <ContentArea>{children}</ContentArea>
-          <CloneRightPanel selectedModelId={selectedModelId} showActiveModel={showActiveModel} />
+          <Box sx={{ display: { xs: 'none', xl: 'block' } }}>
+            <CloneRightPanel selectedModelId={selectedModelId} showActiveModel={showActiveModel} />
+          </Box>
         </Box>
       </Box>
     </ThemeProvider>

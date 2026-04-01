@@ -88,6 +88,10 @@ export function CloneMarketplaceSidebar({ filters, setFilters, total }: SidebarP
         </Typography>
       </Box>
 
+      <Typography sx={{ fontSize: '0.72rem', color: CLONE_TOKENS.text3, mb: 1.25 }}>
+        Showing {total} models
+      </Typography>
+
       {hasFilters && (
         <Button
           size="small"
@@ -265,7 +269,7 @@ export default function CloneMarketplacePage({ filters, setFilters }: CloneMarke
   }, [filters]);
 
   return (
-    <Box sx={{ p: '1.5rem' }}>
+    <Box sx={{ p: { xs: '1rem', sm: '1.25rem', md: '1.5rem' } }}>
       {/* ── Header row ─────────────────────────────────── */}
       <Stack direction="row" alignItems="center" gap={2} sx={{ mb: 2 }} flexWrap="wrap">
         <Typography
@@ -344,9 +348,9 @@ export default function CloneMarketplacePage({ filters, setFilters }: CloneMarke
         Showing {filtered.length} of {CLONE_MOCK_MODELS.length} models
       </Typography>
 
-      <Grid container spacing={2}>
+      <Grid container spacing={{ xs: 1.25, sm: 1.5, md: 2 }}>
         {filtered.map((model) => (
-          <Grid key={model.id} item xs={12} sm={6} md={4} lg={3}>
+          <Grid key={model.id} item xs={12} sm={6} lg={4} xl={3}>
             <CloneModelCard model={model} />
           </Grid>
         ))}
