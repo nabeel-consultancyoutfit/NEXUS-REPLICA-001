@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run lint)",
+      "Bash(npm run lint-fix)",
+      "Bash(npm run build)",
+      "Bash(npm run dev)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(npx eslint *)",
+      "Bash(npx lint-staged)",
+      "Bash(git status)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git add src/*)",
+      "Bash(git commit*)"
+    ],
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(git reset --hard*)",
+      "Bash(rm -rf*)",
+      "Bash(npm install*)",
+      "Bash(npm uninstall*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/post-edit-lint.sh \"$CLAUDE_FILE_PATHS\""
+          }
+        ]
+      }
+    ]
+  }
+}

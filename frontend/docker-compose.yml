@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  aac-boilerplate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aac-boilerplate
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
+      - NEXT_PUBLIC_SOCKET_URL=${NEXT_PUBLIC_SOCKET_URL}
+      - NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME}
+    restart: unless-stopped
