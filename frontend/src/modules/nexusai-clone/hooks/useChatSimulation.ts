@@ -23,6 +23,7 @@ import {
   getNextResponse,
   formatAgentResponse,
 } from '../mock/agent-responses';
+import { CLONE_MOCK_MODELS } from '../mock';
 import type { ChatItem, ChatPhase, ChatFlowChoice } from '../types';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -52,6 +53,24 @@ function makeUserBadge(icon: string, label: string): ChatItem {
   return { id: uid(), type: 'user_badge', timestamp: ts(), badgeIcon: icon, badgeLabel: label };
 }
 
+function getRecommendedModelIds(text: string, selectedTask: string | null): string[] {
+  const query = `${selectedTask ?? ''} ${text}`.toLowerCase();
+
+  if (query.includes('image') || query.includes('design') || query.includes('art')) {
+    return ['flux-1-1-pro', 'gpt-4o', 'gemini-2-5-pro'];
+  }
+
+  if (query.includes('code') || query.includes('app') || query.includes('website') || query.includes('build')) {
+    return ['gpt-5', 'claude-opus-4-6', 'mistral-large-3'];
+  }
+
+  if (query.includes('research') || query.includes('analyse') || query.includes('analyze') || query.includes('data')) {
+    return ['o3', 'gpt-5', 'gemini-2-5-pro'];
+  }
+
+  return CLONE_MOCK_MODELS.slice(0, 3).map((model) => model.id);
+}
+
 // ─── Hook ────────────────────────────────────────────────────────────────────
 
 export interface ChatSimulationReturn {
@@ -63,6 +82,7 @@ export interface ChatSimulationReturn {
   selectedAudience: string | null;
   selectedExp:      string | null;
   selectedBudget:   string | null;
+  recommendationShown: boolean;
   /** User clicks one of the 6 welcome task cards */
   handleTaskSelect:   (icon: string, label: string) => void;
   /** User selects an option inside a choice card */
@@ -75,6 +95,8 @@ export interface ChatSimulationReturn {
   handleDeletePrompt: (itemId: string) => void;
   /** User sends a free-form text message */
   handleSendText:     (text: string) => void;
+  /** User clicks Proceed on a recommended model */
+  handleProceedModel: (modelId: string) => void;
 }
 
 export function useChatSimulation(): ChatSimulationReturn {
@@ -86,6 +108,8 @@ export function useChatSimulation(): ChatSimulationReturn {
   const [selectedAudience, setSelectedAudience] = useState<string | null>(null);
   const [selectedExp,      setSelectedExp]      = useState<string | null>(null);
   const [selectedBudget,   setSelectedBudget]   = useState<string | null>(null);
+  const [freeChatTurns,    setFreeChatTurns]    = useState(0);
+  const [recommendationShown, setRecommendationShown] = useState(false);
 
   // ── Internal: append items after a simulated delay ───────────────────────
 
@@ -311,10 +335,64 @@ export function useChatSimulation(): ChatSimulationReturn {
         const mockResp = getNextResponse(cat);
         const aiText   = formatAgentResponse(mockResp);
         const aiMsg    = makeAiText(aiText, `NexusAI Hub · ${mockResp.agent}`);
-        setItems((prev) => [...prev, aiMsg]);
+        setFreeChatTurns((prevTurns) => {
+          const nextTurns = prevTurns + 1;
+          const shouldShowRecommendation = !recommendationShown && nextTurns >= 2;
+
+          setItems((prev) => {
+            const nextItems = [...prev, aiMsg];
+
+            if (shouldShowRecommendation) {
+              nextItems.push({
+                id: uid(),
+                type: 'model_recommendation',
+                timestamp: ts(),
+                recommendationIntro: 'Great question! Here are the most relevant models based on what you said. Tap any card to explore, or click "Proceed" to simulate selecting it.',
+                recommendationModelIds: getRecommendedModelIds(text, selectedTask),
+              });
+            }
+
+            return nextItems;
+          });
+
+          if (shouldShowRecommendation) {
+            setRecommendationShown(true);
+          }
+
+          return nextTurns;
+        });
       });
     },
-    [phase, showTypingThen],
+    [phase, recommendationShown, selectedTask, showTypingThen],
+  );
+
+  const handleProceedModel = useCallback(
+    (modelId: string) => {
+      const model = CLONE_MOCK_MODELS.find((entry) => entry.id === modelId);
+      if (!model) return;
+
+      setItems((prev) => [
+        ...prev,
+        makeUserText(`Proceed with ${model.name}`),
+      ]);
+
+      showTypingThen(`NexusAI Hub · ${model.name} overview`, 900, () => {
+        const intro = makeAiText(
+          `Before we pick a version of ${model.name}, here are helpful questions people ask. Tap any to learn more, or continue to select a version. 👇`,
+          `NexusAI Hub · ${model.name} overview`,
+        );
+
+        const followup: ChatItem = {
+          id: uid(),
+          type: 'model_followup',
+          timestamp: ts(),
+          followupModelId: modelId,
+        };
+
+        setItems((prev) => [...prev, intro, followup]);
+      });
+    },
+    [showTypingThen],
   );
 
   return {
@@ -326,11 +404,13 @@ export function useChatSimulation(): ChatSimulationReturn {
     selectedAudience,
     selectedExp,
     selectedBudget,
+    recommendationShown,
     handleTaskSelect,
     handleChoiceSelect,
     handleRunPrompt,
     handleRegenerate,
     handleDeletePrompt,
     handleSendText,
+    handleProceedModel,
   };
 }

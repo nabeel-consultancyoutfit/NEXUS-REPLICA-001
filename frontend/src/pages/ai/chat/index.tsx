@@ -14,6 +14,7 @@ import { CloneAppLayout } from '@/layouts/clone-layout/CloneAppShell';
 function AiChatWrapper() {
   const router           = useRouter();
   const [selectedModelId, setSelectedModelId] = useState('gpt-5');
+  const [showActiveModel, setShowActiveModel] = useState(false);
 
   // ?prompt= comes from the homepage guided-discovery card
   const initialPrompt = typeof router.query.prompt === 'string'
@@ -23,10 +24,16 @@ function AiChatWrapper() {
   return (
     <CloneAppLayout
       selectedModelId={selectedModelId}
+      showActiveModel={showActiveModel}
       onSelectModel={setSelectedModelId}
     >
       <CloneChatPage
         selectedModelId={selectedModelId}
+        onSelectModel={setSelectedModelId}
+        onProceedModel={(modelId) => {
+          setSelectedModelId(modelId);
+          setShowActiveModel(true);
+        }}
         initialPrompt={initialPrompt}
       />
     </CloneAppLayout>

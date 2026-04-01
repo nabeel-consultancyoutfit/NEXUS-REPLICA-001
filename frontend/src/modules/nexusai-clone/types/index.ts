@@ -70,7 +70,9 @@ export type ChatItemType =
   | 'user_text'     // right-aligned user bubble
   | 'user_badge'    // right-aligned selection badge (icon + label)
   | 'choice_card'   // left-aligned multi-choice question card
-  | 'prompt_card';  // left-aligned generated AI prompt card
+  | 'prompt_card'   // left-aligned generated AI prompt card
+  | 'model_recommendation' // left-aligned recommended model list
+  | 'model_followup'; // left-aligned model-specific follow-up wizard
 
 export interface ChatFlowChoice {
   icon:        string;
@@ -105,6 +107,11 @@ export interface ChatItem {
   // prompt_card
   promptText?:    string;
   promptDismissed?: boolean;
+  // model_recommendation
+  recommendationModelIds?: string[];
+  recommendationIntro?: string;
+  // model_followup
+  followupModelId?: string;
 }
 
 export interface AgentMockResponse {

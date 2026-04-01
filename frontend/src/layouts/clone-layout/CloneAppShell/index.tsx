@@ -106,10 +106,16 @@ export function CloneMarketLayout({ children, sidebar }: CloneMarketLayoutProps)
 export interface CloneAppLayoutProps {
   children: React.ReactNode;
   selectedModelId?: string;
+  showActiveModel?: boolean;
   onSelectModel?: (id: string) => void;
 }
 
-export function CloneAppLayout({ children, selectedModelId, onSelectModel }: CloneAppLayoutProps) {
+export function CloneAppLayout({
+  children,
+  selectedModelId,
+  showActiveModel = false,
+  onSelectModel,
+}: CloneAppLayoutProps) {
   return (
     <ThemeProvider theme={cloneTheme}>
       <CssBaseline />
@@ -121,7 +127,7 @@ export function CloneAppLayout({ children, selectedModelId, onSelectModel }: Clo
             onSelectModel={onSelectModel}
           />
           <ContentArea>{children}</ContentArea>
-          <CloneRightPanel />
+          <CloneRightPanel selectedModelId={selectedModelId} showActiveModel={showActiveModel} />
         </Box>
       </Box>
     </ThemeProvider>

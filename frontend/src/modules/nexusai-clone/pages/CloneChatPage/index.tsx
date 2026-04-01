@@ -36,6 +36,8 @@ import CloneChoiceCard           from '../../components/CloneChoiceCard';
 import CloneTypingIndicator      from '../../components/CloneTypingIndicator';
 import ClonePromptCard           from '../../components/ClonePromptCard';
 import CloneUserBadge            from '../../components/CloneUserBadge';
+import CloneModelRecommendationCard from '../../components/CloneModelRecommendationCard';
+import CloneModelFollowupCard from '../../components/CloneModelFollowupCard';
 import { useChatSimulation }     from '../../hooks/useChatSimulation';
 import { GUIDED_STEP_1, GUIDED_STEP_2, GUIDED_STEP_3 } from '../../mock/chat-flows';
 import type { ChatFlowChoice }   from '../../types';
@@ -85,12 +87,16 @@ const COMPOSER_ICONS = [
 
 interface CloneChatPageProps {
   selectedModelId?: string;
+  onSelectModel?: (modelId: string) => void;
+  onProceedModel?: (modelId: string) => void;
   /** If set, this prompt is sent automatically when the page mounts */
   initialPrompt?:   string;
 }
 
 export default function CloneChatPage({
   selectedModelId = 'gpt-5',
+  onSelectModel,
+  onProceedModel,
   initialPrompt,
 }: CloneChatPageProps) {
   const {
@@ -104,6 +110,7 @@ export default function CloneChatPage({
     handleRegenerate,
     handleDeletePrompt,
     handleSendText,
+    handleProceedModel,
   } = useChatSimulation();
 
   const [inputText,  setInputText]  = useState('');
@@ -372,6 +379,29 @@ export default function CloneChatPage({
                     onRun={handleRunPrompt}
                     onRegenerate={handleRegenerate}
                     onDelete={() => handleDeletePrompt(item.id)}
+                  />
+                );
+              }
+
+              if (item.type === 'model_recommendation' && item.recommendationModelIds) {
+                return (
+                  <CloneModelRecommendationCard
+                    key={item.id}
+                    intro={item.recommendationIntro}
+                    modelIds={item.recommendationModelIds}
+                    onProceedModel={(modelId) => {
+                      onProceedModel?.(modelId);
+                      handleProceedModel(modelId);
+                    }}
+                  />
+                );
+              }
+
+              if (item.type === 'model_followup' && item.followupModelId) {
+                return (
+                  <CloneModelFollowupCard
+                    key={item.id}
+                    modelId={item.followupModelId}
                   />
                 );
               }
