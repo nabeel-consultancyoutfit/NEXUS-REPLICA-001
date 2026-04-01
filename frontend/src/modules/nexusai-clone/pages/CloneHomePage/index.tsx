@@ -4,8 +4,11 @@
  * Layout:
  *   Navbar (via ClonePageLayout in Next.js page)
  *   Hero section: "347 models live" pill | large Syne heading | search CTA
+ *   Stats bar
  *   Category grid: Create Image | Generate Audio | Create Video | …
  *   Featured models section
+ *   Value props | AI Labs | Model Comparison | Trending Research
+ *   Budget Finder | Use Case Grid | Newsletter CTA | Footer
  */
 import React from 'react';
 import NextLink from 'next/link';
@@ -15,6 +18,15 @@ import { CLONE_TOKENS } from '@/theme/clone-theme';
 import CloneHeroSearchCard from '../../components/CloneHeroSearchCard';
 import CloneModelCard from '../../components/CloneModelCard';
 import { CLONE_MOCK_MODELS } from '../../mock';
+import CloneStatsBar from '../../components/home/CloneStatsBar';
+import CloneValueProps from '../../components/home/CloneValueProps';
+import CloneAiLabs from '../../components/home/CloneAiLabs';
+import CloneModelComparison from '../../components/home/CloneModelComparison';
+import CloneTrendingResearch from '../../components/home/CloneTrendingResearch';
+import CloneBudgetFinder from '../../components/home/CloneBudgetFinder';
+import CloneUseCaseGrid from '../../components/home/CloneUseCaseGrid';
+import CloneNewsletterCta from '../../components/home/CloneNewsletterCta';
+import CloneFooter from '../../components/home/CloneFooter';
 
 const TASK_CATEGORIES = [
   { icon: '🖼️', label: 'Create Image'      },
@@ -139,6 +151,9 @@ export default function CloneHomePage() {
         </Typography>
       </Box>
 
+      {/* ── Stats Bar ────────────────────────────────────── */}
+      <CloneStatsBar />
+
       {/* ── Task Category Grid ───────────────────────────── */}
       <Box sx={{ maxWidth: 860, mx: 'auto', px: '2rem', mb: '4rem' }}>
         <Grid container spacing={1.5}>
@@ -223,6 +238,31 @@ export default function CloneHomePage() {
           ))}
         </Grid>
       </Box>
+
+      {/* ── Value Props ──────────────────────────────────── */}
+      <CloneValueProps />
+
+      {/* ── AI Labs ──────────────────────────────────────── */}
+      <CloneAiLabs />
+
+      {/* ── Model Comparison Table ───────────────────────── */}
+      <CloneModelComparison />
+
+      {/* ── Trending Research ────────────────────────────── */}
+      <CloneTrendingResearch />
+
+      {/* ── Budget Finder ────────────────────────────────── */}
+      <CloneBudgetFinder />
+
+      {/* ── Use Case Grid ────────────────────────────────── */}
+      <CloneUseCaseGrid />
+
+      {/* ── Newsletter CTA ───────────────────────────────── */}
+      <CloneNewsletterCta />
+
+      {/* ── Footer ───────────────────────────────────────── */}
+      <CloneFooter />
+
     </Box>
   );
 }

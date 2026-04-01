@@ -10,7 +10,7 @@
  *   1. CloneMarketplacePage — the main page content
  *   2. CloneMarketplaceSidebar — the filter rail, passed to CloneMarketLayout
  */
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Box, Typography, Stack, Grid, FormGroup, FormControlLabel, Checkbox, Slider, Divider, Button } from '@mui/material';
 import { CLONE_TOKENS } from '@/theme/clone-theme';
 import CloneSearchBar from '../../components/CloneSearchBar';
@@ -34,6 +34,11 @@ const INITIAL_FILTERS: MarketFilters = {
   search: '', capability: 'All', providers: [],
   pricingTypes: [], maxPrice: 100, minRating: null, licences: [],
 };
+
+const LAB_TABS = CLONE_PROVIDERS.map((provider) => ({
+  provider,
+  label: `${provider} (${CLONE_MOCK_MODELS.filter((model) => model.provider === provider).length})`,
+}));
 
 // ─── Left filter rail (passed to layout as sidebar prop) ───────────────────
 interface SidebarProps {
@@ -214,8 +219,15 @@ export function CloneMarketplaceSidebar({ filters, setFilters, total }: SidebarP
 }
 
 // ─── Main page content ─────────────────────────────────────────────────────
-export default function CloneMarketplacePage() {
-  const [filters, setFilters] = useState<MarketFilters>(INITIAL_FILTERS);
+interface CloneMarketplacePageProps {
+  filters: MarketFilters;
+  setFilters: React.Dispatch<React.SetStateAction<MarketFilters>>;
+}
+
+export { INITIAL_FILTERS };
+
+export default function CloneMarketplacePage({ filters, setFilters }: CloneMarketplacePageProps) {
+  const activeProviderTab = filters.providers.length === 1 ? filters.providers[0] : null;
 
   const filtered: CloneModel[] = useMemo(() => {
     let results = [...CLONE_MOCK_MODELS];
@@ -251,11 +263,6 @@ export default function CloneMarketplacePage() {
     }
     return results;
   }, [filters]);
-
-  // The sidebar is rendered by the Next.js routing page via the `sidebar` prop on CloneMarketLayout
-  // We expose filters state so the page can thread it through
-  (CloneMarketplacePage as any).__filters   = filters;
-  (CloneMarketplacePage as any).__setFilters = setFilters;
 
   return (
     <Box sx={{ p: '1.5rem' }}>
@@ -306,24 +313,28 @@ export default function CloneMarketplacePage() {
           '&::-webkit-scrollbar': { height: 0 },
         }}
       >
-        {['All Labs (139)', 'OpenAI (11)', 'Anthropic (8)', 'Google DeepMind (8)',
-          'Meta (8)', 'DeepSeek (6)', 'Alibaba (Qwen) (9)', 'xAI / Grok (6)',
-          'Mistral AI (5)', 'Cohere (5)', 'Microsoft (6)', 'Amazon (5)'].map((lab, i) => (
+        {[{ provider: null, label: `All Labs (${CLONE_MOCK_MODELS.length})` }, ...LAB_TABS].map(({ provider, label }) => (
           <Box
-            key={lab}
+            key={label}
+            onClick={() => setFilters((prev) => ({
+              ...prev,
+              providers: provider ? [provider] : [],
+            }))}
             sx={{
               px:          '12px',
               py:          '6px',
               whiteSpace:  'nowrap',
               fontSize:    '0.78rem',
-              fontWeight:  i === 0 ? 700 : 500,
-              color:       i === 0 ? CLONE_TOKENS.accent : CLONE_TOKENS.text2,
-              borderBottom: i === 0 ? `2px solid ${CLONE_TOKENS.accent}` : '2px solid transparent',
+              fontWeight:  activeProviderTab === provider || (!provider && filters.providers.length === 0) ? 700 : 500,
+              color:       activeProviderTab === provider || (!provider && filters.providers.length === 0) ? CLONE_TOKENS.accent : CLONE_TOKENS.text2,
+              borderBottom: activeProviderTab === provider || (!provider && filters.providers.length === 0)
+                ? `2px solid ${CLONE_TOKENS.accent}`
+                : '2px solid transparent',
               cursor:      'pointer',
               '&:hover':   { color: CLONE_TOKENS.accent },
             }}
           >
-            {lab}
+            {label}
           </Box>
         ))}
       </Stack>

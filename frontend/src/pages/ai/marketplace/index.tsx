@@ -4,19 +4,14 @@
  */
 import React, { ReactElement, useState } from 'react';
 import type { NextPageWithLayout } from '../../_app';
-import CloneMarketplacePage, { CloneMarketplaceSidebar } from '@/modules/nexusai-clone/pages/CloneMarketplacePage';
+import CloneMarketplacePage, {
+  CloneMarketplaceSidebar,
+  INITIAL_FILTERS,
+} from '@/modules/nexusai-clone/pages/CloneMarketplacePage';
 import { CloneMarketLayout } from '@/layouts/clone-layout/CloneAppShell';
 
 function AiMarketplaceWrapper() {
-  const [filters, setFilters] = useState<any>({
-    search: '',
-    capability: 'All',
-    providers: [],
-    pricingTypes: [],
-    maxPrice: 100,
-    minRating: null,
-    licences: [],
-  });
+  const [filters, setFilters] = useState(INITIAL_FILTERS);
 
   return (
     <CloneMarketLayout
@@ -28,7 +23,7 @@ function AiMarketplaceWrapper() {
         />
       )}
     >
-      <CloneMarketplacePage />
+      <CloneMarketplacePage filters={filters} setFilters={setFilters} />
     </CloneMarketLayout>
   );
 }
