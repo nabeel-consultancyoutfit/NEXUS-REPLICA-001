@@ -1,50 +1,41 @@
+/**
+ * Demo service — RTK Query endpoints used by the dashboard to demonstrate
+ * live API fetching via jsonplaceholder.typicode.com.
+ *
+ * This is an original workspace service, separate from any clone services.
+ */
 import { baseApi } from '@/services/base-api';
 
-export interface Post {
-  id: number;
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface Post {
+  id:     number;
   userId: number;
-  title: string;
-  body: string;
+  title:  string;
+  body:   string;
 }
 
-export interface DemoUser {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  website: string;
+interface User {
+  id:       number;
+  name:     string;
+  email:    string;
+  username: string;
+  phone:    string;
+  website:  string;
 }
 
-export const demoApi = baseApi.injectEndpoints({
+// ─── Endpoints ────────────────────────────────────────────────────────────────
+const demoApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getPosts: builder.query<Post[], void>({
-      query: () => '/posts?_limit=5',
+      query: () => '/posts',
+      providesTags: ['Posts'],
+    }),
+    getUsers: builder.query<User[], void>({
+      query: () => '/users',
       providesTags: ['Demo'],
     }),
-    getUsers: builder.query<DemoUser[], void>({
-      query: () => '/users?_limit=5',
-      providesTags: ['Users'],
-    }),
-    getPostById: builder.query<Post, number>({
-      query: (id) => `/posts/${id}`,
-    }),
-    createPost: builder.mutation<
-      Post,
-      { title: string; body: string; userId: number }
-    >({
-      query: (body) => ({
-        url: '/posts',
-        method: 'POST',
-        body,
-      }),
-      invalidatesTags: ['Demo'],
-    }),
   }),
+  overrideExisting: false,
 });
 
-export const {
-  useGetPostsQuery,
-  useGetUsersQuery,
-  useGetPostByIdQuery,
-  useCreatePostMutation,
-} = demoApi;
+export const { useGetPostsQuery, useGetUsersQuery } = demoApi;

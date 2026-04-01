@@ -17,6 +17,7 @@ import {
   BarChartOutlined,
   ArticleOutlined,
   SettingsOutlined,
+  StoreOutlined,
 } from '@mui/icons-material';
 
 interface NavItem {
@@ -27,6 +28,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { title: 'Dashboard', path: '/dashboard', icon: <DashboardOutlined /> },
+  { title: 'Marketplace', path: '/marketplace', icon: <StoreOutlined /> },
   { title: 'Redux Demo', path: '/dashboard#redux', icon: <StorageOutlined /> },
   { title: 'RTK Query Demo', path: '/dashboard#rtk', icon: <CloudOutlined /> },
   { title: 'Table Demo', path: '/dashboard#table', icon: <TableChartOutlined /> },

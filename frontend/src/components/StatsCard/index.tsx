@@ -1,58 +1,67 @@
-import { Box, Card, Typography } from '@mui/material';
-import { SxProps, Theme } from '@mui/material/styles';
-import { ReactNode } from 'react';
+/**
+ * StatsCard — workspace component used by the dashboard to display
+ * a single KPI statistic with an icon, title, and value.
+ *
+ * Uses the workspace theme (primary: #38CAB5).
+ */
+import React, { ReactElement } from 'react';
+import { Card, Box, Typography, Avatar } from '@mui/material';
 
 interface StatsCardProps {
   title: string;
-  value: string | number;
-  icon?: ReactNode;
-  subtitle?: string;
-  sx?: SxProps<Theme>;
+  value:  string | number;
+  icon:   ReactElement;
 }
 
-export default function StatsCard({ title, value, icon, subtitle, sx }: StatsCardProps) {
+export default function StatsCard({ title, value, icon }: StatsCardProps) {
   return (
     <Card
       sx={{
-        p: 3,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        ...sx,
+        p:              2.5,
+        display:        'flex',
+        alignItems:     'center',
+        gap:            2,
+        height:         '100%',
+        borderRadius:   2,
+        boxShadow:      1,
       }}
     >
-      <Box>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-          {title}
-        </Typography>
-        <Typography variant="h5" sx={{ fontWeight: 700 }}>
-          {value}
-        </Typography>
-        {subtitle && (
-          <Typography variant="caption" color="text.secondary">
-            {subtitle}
-          </Typography>
-        )}
-      </Box>
-      {icon && (
-        <Box
+      <Avatar
+        sx={{
+          bgcolor:    'primary.light',
+          color:      'primary.main',
+          width:      48,
+          height:     48,
+          flexShrink: 0,
+          '& .MuiSvgIcon-root': { fontSize: 24 },
+        }}
+      >
+        {icon}
+      </Avatar>
+
+      <Box sx={{ minWidth: 0 }}>
+        <Typography
+          variant="caption"
+          color="text.secondary"
           sx={{
-            width: 48,
-            height: 48,
-            borderRadius: '12px',
-            bgcolor: 'primary.lighter',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'primary.main',
-            '& svg': { fontSize: 26 },
+            display:      'block',
+            fontWeight:   500,
+            whiteSpace:   'nowrap',
+            overflow:     'hidden',
+            textOverflow: 'ellipsis',
           }}
         >
-          {icon}
-        </Box>
-      )}
+          {title}
+        </Typography>
+        <Typography
+          variant="h5"
+          fontWeight={700}
+          color="text.primary"
+          sx={{ lineHeight: 1.3 }}
+        >
+          {value}
+        </Typography>
+      </Box>
     </Card>
   );
 }
-
-export type { StatsCardProps };

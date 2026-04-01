@@ -1,0 +1,54 @@
+{
+  "skill_name": "clone-site-to-frontend",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Clone the NexusAI website at https://nexusai-db.netlify.app. Crawl all the pages, take screenshots, analyze the UI components, and generate a complete frontend implementation inside the frontend/src/ folder of my workspace. Follow all the workspace conventions (Next.js, TypeScript, MUI v5).",
+      "expected_output": "A complete sitemap of all discovered pages, followed by generated Next.js page files and shared components inside frontend/src/ following workspace conventions. Should include at minimum: the marketplace browse page, model detail page, and at least 2 shared components (e.g. ModelCard, SearchBar). All files should use TypeScript, MUI sx prop, CustomButton, AuthGuard where needed, and RTK Query service stubs.",
+      "files": [],
+      "expectations": [
+        "A sitemap is produced listing at least 5 distinct pages/routes discovered on the site",
+        "At least one screenshot or visual description of each major page is captured and referenced",
+        "At least one RTK Query service file is created at frontend/src/services/<feature>/index.ts",
+        "At least one type definition file is created at frontend/src/types/modules/<feature>/index.ts",
+        "At least 3 page files are generated inside frontend/src/pages/",
+        "At least 2 shared component files are generated inside frontend/src/components/",
+        "All generated pages include the getLayout pattern",
+        "No raw fetch() or axios() calls appear in generated code — only RTK Query",
+        "No inline style={{}} props appear — only sx prop used",
+        "A completion report listing files created and backend APIs required is produced"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I want to replicate the nexusai-db.netlify.app site in our workspace. Start by crawling the site to find all pages, then analyze each page's components and features, and finally build the marketplace browse page with filter sidebar and model cards. Put everything in frontend/src/ following our Next.js + MUI setup.",
+      "expected_output": "A crawled sitemap, followed by a focused implementation of the marketplace page including FilterSidebar component, ModelCard component, and the main marketplace/index.tsx page. Should use mock data, follow workspace conventions, and include loading/empty states.",
+      "files": [],
+      "expectations": [
+        "Sitemap is produced with discovered pages",
+        "A marketplace page is generated at frontend/src/pages/marketplace/index.tsx",
+        "A ModelCard component is generated inside frontend/src/components/",
+        "The generated page uses AuthGuard (or GuestGuard if public) correctly",
+        "Mock data is defined for model items",
+        "Loading state (skeleton or spinner) is present in the marketplace page",
+        "EmptyState component is used for the no-results case",
+        "PageHeader component is used in the page"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Analyze https://nexusai-db.netlify.app and identify all reusable UI components across the site. Then generate the shared component library for the workspace — things like the navigation, model cards, search bar, provider badges, etc. Save them in frontend/src/components/ following the workspace's MUI conventions.",
+      "expected_output": "A component architecture map identifying shared vs page-specific components, followed by implementation of at least 4 shared components as TypeScript + MUI files inside frontend/src/components/. Each component should be properly typed with a Props interface, use MUI sx styling, and include JSDoc comments.",
+      "files": [],
+      "expectations": [
+        "A component architecture is documented showing shared vs page-specific split",
+        "At least 4 component files are created inside frontend/src/components/",
+        "Each component has a TypeScript Props interface defined",
+        "No raw style={{}} props appear — only sx used",
+        "Components use the workspace color palette tokens (primary.main, etc.) not raw hex values",
+        "CustomButton is used instead of raw MUI Button where applicable",
+        "Components include JSDoc or inline documentation comments"
+      ]
+    }
+  ]
+}
